@@ -1,0 +1,85 @@
+{
+  "name": "Vaccination",
+  "type": "object",
+  "properties": {
+    "pet_id": {
+      "type": "string",
+      "description": "ID \u0e2a\u0e31\u0e15\u0e27\u0e4c\u0e40\u0e25\u0e35\u0e49\u0e22\u0e07"
+    },
+    "pet_name": {
+      "type": "string",
+      "description": "\u0e0a\u0e37\u0e48\u0e2d\u0e2a\u0e31\u0e15\u0e27\u0e4c\u0e40\u0e25\u0e35\u0e49\u0e22\u0e07"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "\u0e0a\u0e37\u0e48\u0e2d\u0e40\u0e08\u0e49\u0e32\u0e02\u0e2d\u0e07"
+    },
+    "owner_phone": {
+      "type": "string",
+      "description": "\u0e40\u0e1a\u0e2d\u0e23\u0e4c\u0e42\u0e17\u0e23"
+    },
+    "species": {
+      "type": "string",
+      "description": "\u0e0a\u0e19\u0e34\u0e14\u0e2a\u0e31\u0e15\u0e27\u0e4c"
+    },
+    "vaccine_name": {
+      "type": "string",
+      "description": "\u0e0a\u0e37\u0e48\u0e2d\u0e27\u0e31\u0e04\u0e0b\u0e35\u0e19"
+    },
+    "vaccine_type": {
+      "type": "string",
+      "enum": [
+        "\u0e42\u0e23\u0e04\u0e1e\u0e34\u0e29\u0e2a\u0e38\u0e19\u0e31\u0e02\u0e1a\u0e49\u0e32",
+        "\u0e23\u0e27\u0e21 5 \u0e42\u0e23\u0e04",
+        "\u0e23\u0e27\u0e21 4 \u0e42\u0e23\u0e04",
+        "\u0e44\u0e02\u0e49\u0e2b\u0e31\u0e14\u0e41\u0e21\u0e27",
+        "FeLV",
+        "Bordetella",
+        "\u0e2d\u0e37\u0e48\u0e19\u0e46"
+      ],
+      "description": "\u0e1b\u0e23\u0e30\u0e40\u0e20\u0e17\u0e27\u0e31\u0e04\u0e0b\u0e35\u0e19"
+    },
+    "lot_number": {
+      "type": "string",
+      "description": "Lot Number"
+    },
+    "administered_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u0e27\u0e31\u0e19\u0e17\u0e35\u0e48\u0e09\u0e35\u0e14"
+    },
+    "next_due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u0e19\u0e31\u0e14\u0e09\u0e35\u0e14\u0e04\u0e23\u0e31\u0e49\u0e07\u0e16\u0e31\u0e14\u0e44\u0e1b"
+    },
+    "vet_name": {
+      "type": "string",
+      "description": "\u0e2a\u0e31\u0e15\u0e27\u0e41\u0e1e\u0e17\u0e22\u0e4c\u0e1c\u0e39\u0e49\u0e09\u0e35\u0e14"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Completed",
+        "Upcoming",
+        "Overdue"
+      ],
+      "default": "Completed"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u0e2a\u0e48\u0e07 reminder \u0e41\u0e25\u0e49\u0e27"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u0e2b\u0e21\u0e32\u0e22\u0e40\u0e2b\u0e15\u0e38"
+    }
+  },
+  "required": [
+    "pet_name",
+    "vaccine_name",
+    "vaccine_type",
+    "administered_date"
+  ]
+}
