@@ -28,6 +28,10 @@ import Billing from '@/pages/Billing';
 import Insurance from '@/pages/Insurance';
 import Reports from '@/pages/Reports';
 import Settings from '@/pages/Settings';
+import Counter from '@/pages/Counter';
+import ExamRoom from '@/pages/ExamRoom';
+import Pharmacy from '@/pages/Pharmacy';
+import QueueBoard from '@/pages/QueueBoard';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -67,6 +71,10 @@ const AuthenticatedApp = () => {
           <Route path="/insurance" element={<Insurance />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/counter" element={<Counter />} />
+          <Route path="/exam-room" element={<ExamRoom />} />
+          <Route path="/pharmacy" element={<Pharmacy />} />
+          <Route path="/queue-board" element={<QueueBoard />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

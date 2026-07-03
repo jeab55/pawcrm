@@ -2,12 +2,17 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, PawPrint, CalendarDays, Syringe,
-  Package, Receipt, ShieldCheck, BarChart3, Settings, LogOut, Plus
+  Package, Receipt, ShieldCheck, BarChart3, Settings, LogOut, Plus,
+  ClipboardList, Stethoscope, Pill, Tv
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const menuItems = [
   { label: "แดชบอร์ด", icon: LayoutDashboard, path: "/" },
+  { label: "บอร์ดคิว", icon: Tv, path: "/queue-board" },
+  { label: "เคาน์เตอร์", icon: ClipboardList, path: "/counter" },
+  { label: "ห้องตรวจ", icon: Stethoscope, path: "/exam-room" },
+  { label: "ห้องยา", icon: Pill, path: "/pharmacy" },
   { label: "สัตว์เลี้ยง", icon: PawPrint, path: "/pets" },
   { label: "นัดหมาย", icon: CalendarDays, path: "/appointments" },
   { label: "วัคซีน", icon: Syringe, path: "/vaccinations" },
@@ -39,18 +44,18 @@ export default function Sidebar({ collapsed, onToggle }) {
       {!collapsed && (
         <div className="px-3 pt-4 pb-2">
           <Link
-            to="/appointments?new=true"
+            to="/counter"
             className="flex items-center gap-2 w-full px-3 py-2.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors text-sm font-medium"
           >
             <Plus className="w-4 h-4" />
-            <span>+ สร้างนัดใหม่</span>
+            <span>+ เช็คอินผู้ป่วย</span>
           </Link>
         </div>
       )}
       {collapsed && (
         <div className="px-2 pt-4 pb-2">
           <Link
-            to="/appointments?new=true"
+            to="/counter"
             className="flex items-center justify-center w-full p-2.5 rounded-lg bg-white/15 hover:bg-white/25 transition-colors"
           >
             <Plus className="w-4 h-4" />
