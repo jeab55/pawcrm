@@ -7,17 +7,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Stethoscope, Pill, Plus, Trash2, Check, UserCheck, PawPrint } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
 
 export default function ExamRoom() {
   const [visits, setVisits] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentVisit, setCurrentVisit] = useState(null);
   const [diagnosis, setDiagnosis] = useState("");
   const [treatment, setTreatment] = useState("");
   const [vetName, setVetName] = useState("");
+  const [vetId, setVetId] = useState("");
   const [prescriptions, setPrescriptions] = useState([]);
   const [medSearch, setMedSearch] = useState("");
   const [showMedPicker, setShowMedPicker] = useState(false);
@@ -30,6 +33,8 @@ export default function ExamRoom() {
       setVisits(all.filter((v) => moment(v.created_date).format("YYYY-MM-DD") === today));
       const meds = await base44.entities.InventoryItem.list("-created_date", 100);
       setInventory(meds.filter((m) => m.quantity > 0));
+      const vetList = await base44.entities.Veterinarian.list("-created_date", 100);
+      setVets(vetList.filter((v) => v.status === "Active"));
     } catch (e) {
       console.error(e);
     } finally {
@@ -56,6 +61,7 @@ export default function ExamRoom() {
       setDiagnosis(visit.diagnosis || "");
       setTreatment(visit.treatment || "");
       setVetName(visit.vet_name || "");
+      setVetId(visit.vet_id || "");
       setPrescriptions(visit.prescriptions || []);
       await loadData();
     } catch (e) {
@@ -68,6 +74,7 @@ export default function ExamRoom() {
     setDiagnosis(visit.diagnosis || "");
     setTreatment(visit.treatment || "");
     setVetName(visit.vet_name || "");
+    setVetId(visit.vet_id || "");
     setPrescriptions(visit.prescriptions || []);
   };
 
@@ -105,6 +112,7 @@ export default function ExamRoom() {
         diagnosis,
         treatment,
         vet_name: vetName || undefined,
+        vet_id: vetId || undefined,
         prescriptions: prescriptions.length > 0 ? prescriptions : undefined,
         has_meds: prescriptions.length > 0,
         status: withMeds ? "Pharmacy Pending" : "Completed",
@@ -114,6 +122,7 @@ export default function ExamRoom() {
       setCurrentVisit(null);
       setDiagnosis("");
       setTreatment("");
+      setVetId("");
       setPrescriptions([]);
       await loadData();
     } catch (e) {
@@ -254,7 +263,12 @@ export default function ExamRoom() {
 
                 <div className="space-y-2">
                   <Label>สัตวแพทย์</Label>
-                  <Input value={vetName} onChange={(e) => setVetName(e.target.value)} placeholder="ชื่อแพทย์" />
+                  <Select value={vetId} onValueChange={(v) => { setVetId(v); const vet = vets.find((x) => x.id === v); setVetName(vet?.name || ""); }}>
+                    <SelectTrigger><SelectValue placeholder="เลือกแพทย์" /></SelectTrigger>
+                    <SelectContent>
+                      {vets.map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="space-y-2">

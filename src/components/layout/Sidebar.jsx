@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, PawPrint, CalendarDays, Syringe,
   Package, Receipt, ShieldCheck, BarChart3, Settings, LogOut, Plus,
-  ClipboardList, Stethoscope, Pill, Tv
+  ClipboardList, Stethoscope, Pill, Tv, Users, UserCog
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
@@ -14,6 +14,8 @@ const menuItems = [
   { label: "ห้องตรวจ", icon: Stethoscope, path: "/exam-room" },
   { label: "ห้องยา", icon: Pill, path: "/pharmacy" },
   { label: "สัตว์เลี้ยง", icon: PawPrint, path: "/pets" },
+  { label: "เจ้าของ", icon: Users, path: "/owners" },
+  { label: "สัตวแพทย์", icon: UserCog, path: "/veterinarians" },
   { label: "นัดหมาย", icon: CalendarDays, path: "/appointments" },
   { label: "วัคซีน", icon: Syringe, path: "/vaccinations" },
   { label: "สต็อกยา", icon: Package, path: "/inventory" },

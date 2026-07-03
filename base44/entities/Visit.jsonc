@@ -55,7 +55,11 @@
     },
     "vet_name": {
       "type": "string",
-      "description": "\u0e2a\u0e31\u0e15\u0e27\u0e41\u0e1e\u0e17\u0e22\u0e4c"
+      "description": "\u0e0a\u0e37\u0e48\u0e2d\u0e2a\u0e31\u0e15\u0e27\u0e41\u0e1e\u0e17\u0e22\u0e4c"
+    },
+    "vet_id": {
+      "type": "string",
+      "description": "ID \u0e2a\u0e31\u0e15\u0e27\u0e41\u0e1e\u0e17\u0e22\u0e4c"
     },
     "reason": {
       "type": "string",
@@ -71,7 +75,30 @@
     },
     "prescriptions": {
       "type": "array",
-      "description": "\u0e22\u0e32\u0e17\u0e35\u0e48\u0e2a\u0e31\u0e48\u0e07 [{inventory_item_id, name, sku, qty, unit, notes}]"
+      "items": {
+        "type": "object",
+        "properties": {
+          "inventory_item_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "\u0e22\u0e32\u0e17\u0e35\u0e48\u0e2a\u0e31\u0e48\u0e07"
     },
     "has_meds": {
       "type": "boolean",

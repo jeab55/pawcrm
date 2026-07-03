@@ -32,6 +32,9 @@ import Counter from '@/pages/Counter';
 import ExamRoom from '@/pages/ExamRoom';
 import Pharmacy from '@/pages/Pharmacy';
 import QueueBoard from '@/pages/QueueBoard';
+import Owners from '@/pages/Owners';
+import OwnerDetail from '@/pages/OwnerDetail';
+import Veterinarians from '@/pages/Veterinarians';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -75,6 +78,9 @@ const AuthenticatedApp = () => {
           <Route path="/exam-room" element={<ExamRoom />} />
           <Route path="/pharmacy" element={<Pharmacy />} />
           <Route path="/queue-board" element={<QueueBoard />} />
+          <Route path="/owners" element={<Owners />} />
+          <Route path="/owners/:id" element={<OwnerDetail />} />
+          <Route path="/veterinarians" element={<Veterinarians />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

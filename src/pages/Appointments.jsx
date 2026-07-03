@@ -33,7 +33,8 @@ export default function Appointments() {
   const [viewMode, setViewMode] = useState("day");
   const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ pet_name: "", owner_name: "", date: moment().format("YYYY-MM-DD"), time_slot: "09:00", end_time: "09:30", type: "ตรวจทั่วไป", vet_name: "", notes: "" });
+  const [form, setForm] = useState({ pet_name: "", owner_name: "", date: moment().format("YYYY-MM-DD"), time_slot: "09:00", end_time: "09:30", type: "ตรวจทั่วไป", vet_name: "", vet_id: "", notes: "" });
+  const [vets, setVets] = useState([]);
 
   const urlParams = new URLSearchParams(window.location.search);
   useEffect(() => {
@@ -44,6 +45,8 @@ export default function Appointments() {
     try {
       const data = await base44.entities.Appointment.filter({}, "-date", 500);
       setAppointments(data);
+      const vetList = await base44.entities.Veterinarian.list("-created_date", 100);
+      setVets(vetList.filter((v) => v.status === "Active"));
     } catch {}
     setLoading(false);
   };
@@ -64,7 +67,7 @@ export default function Appointments() {
     try {
       await base44.entities.Appointment.create({ ...form, status: "Booked" });
       setShowAdd(false);
-      setForm({ pet_name: "", owner_name: "", date: moment().format("YYYY-MM-DD"), time_slot: "09:00", end_time: "09:30", type: "ตรวจทั่วไป", vet_name: "", notes: "" });
+      setForm({ pet_name: "", owner_name: "", date: moment().format("YYYY-MM-DD"), time_slot: "09:00", end_time: "09:30", type: "ตรวจทั่วไป", vet_name: "", vet_id: "", notes: "" });
       loadAppointments();
     } catch {}
   };
@@ -151,6 +154,7 @@ export default function Appointments() {
                                 className={`p-2 rounded-lg border text-xs mb-1 cursor-grab ${statusColors[appt.status] || statusColors.Booked}`}>
                                 <p className="font-semibold truncate">{appt.pet_name}</p>
                                 <p className="truncate">{appt.type}</p>
+                                {appt.vet_name && <p className="text-muted-foreground truncate">{appt.vet_name}</p>}
                                 <select
                                   value={appt.status}
                                   onChange={(e) => { e.stopPropagation(); handleStatusChange(appt.id, e.target.value); }}
@@ -198,7 +202,15 @@ export default function Appointments() {
                 <SelectContent>{apptTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div><Label>สัตวแพทย์</Label><Input value={form.vet_name} onChange={(e) => setForm({...form, vet_name: e.target.value})} /></div>
+            <div>
+              <Label>สัตวแพทย์</Label>
+              <Select value={form.vet_id} onValueChange={(v) => { const vet = vets.find((x) => x.id === v); setForm({...form, vet_id: v, vet_name: vet?.name || ""}); }}>
+                <SelectTrigger><SelectValue placeholder="เลือกแพทย์" /></SelectTrigger>
+                <SelectContent>
+                  {vets.map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div><Label>หมายเหตุ</Label><Input value={form.notes} onChange={(e) => setForm({...form, notes: e.target.value})} /></div>
             <Button onClick={handleSave} className="w-full">บันทึกนัดหมาย</Button>
           </div>

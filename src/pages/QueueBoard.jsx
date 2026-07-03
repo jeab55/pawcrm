@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Clock, Stethoscope, Pill, CheckCircle, Tv } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import moment from "moment";
 
 const columns = [
@@ -22,12 +23,16 @@ export default function QueueBoard() {
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(moment());
+  const [vets, setVets] = useState([]);
+  const [filterVet, setFilterVet] = useState("all");
 
   const loadVisits = async () => {
     try {
       const all = await base44.entities.Visit.list("-created_date", 200);
       const today = moment().format("YYYY-MM-DD");
       setVisits(all.filter((v) => moment(v.created_date).format("YYYY-MM-DD") === today));
+      const vetList = await base44.entities.Veterinarian.list("-created_date", 100);
+      setVets(vetList.filter((v) => v.status === "Active"));
     } catch (e) {
       console.error(e);
     } finally {
@@ -52,16 +57,25 @@ export default function QueueBoard() {
           <Tv className="w-6 h-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground">บอร์ดคิวผู้ป่วย</h1>
         </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold text-primary tabular-nums">{currentTime.format("HH:mm:ss")}</div>
-          <div className="text-sm text-muted-foreground">{currentTime.format("dddd D MMMM YYYY")}</div>
-        </div>
-      </div>
+        <div className="flex items-center gap-3">
+          <Select value={filterVet} onValueChange={setFilterVet}>
+            <SelectTrigger className="w-48 h-9"><SelectValue placeholder="ทุกหมอ" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">ทุกสัตวแพทย์</SelectItem>
+              {vets.map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-primary tabular-nums">{currentTime.format("HH:mm:ss")}</div>
+            <div className="text-sm text-muted-foreground">{currentTime.format("dddd D MMMM YYYY")}</div>
+          </div>
+          </div>
+          </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {columns.map((col) => {
           const c = colorMap[col.color];
-          const items = visits.filter((v) => v.status === col.key);
+          const items = visits.filter((v) => v.status === col.key && (filterVet === "all" || v.vet_id === filterVet));
           return (
             <Card key={col.key} className={`${c.border}`}>
               <CardContent className="p-4">
