@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { CalendarDays, Banknote, Syringe, AlertCircle, Clock, ChevronRight, CalendarClock } from "lucide-react";
 import { Link } from "react-router-dom";
 import KPICard from "@/components/shared/KPICard";
+import RoomSwitcher from "@/components/dashboard/RoomSwitcher";
 import { Button } from "@/components/ui/button";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import moment from "moment";
@@ -99,6 +100,9 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold">แดชบอร์ด</h1>
         <p className="text-muted-foreground text-sm">ภาพรวมคลินิกวันนี้</p>
       </div>
+
+      {/* Room switcher — เปิดจุดงานได้ด้วยบัญชีเดียว */}
+      <RoomSwitcher />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
