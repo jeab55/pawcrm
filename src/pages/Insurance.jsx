@@ -80,7 +80,7 @@ export default function Insurance() {
       </div>
 
       {filtered.length === 0 ? (
-        <EmptyState icon={ShieldCheck} title="ไม่มีเคลม" description="สร้างเคลมใหม่เพื่อเริ่มติดตาม" action={<Button onClick={() => setShowAdd(true)}>สร้างเคลม</Button>} />
+        <EmptyState icon={ShieldCheck} title="ยังไม่มีเคลม" description={filterStatus === "all" ? "กดปุ่ม “สร้างเคลม” ด้านบนขวาเพื่อเริ่มติดตามเคลมประกัน" : "ไม่มีเคลมในสถานะนี้"} />
       ) : (
         <div className="bg-white rounded-xl border overflow-hidden">
           <table className="w-full text-sm">

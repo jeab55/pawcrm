@@ -90,9 +90,15 @@ export default function QueueBoard() {
                 </div>
                 <div className="space-y-2 min-h-[200px]">
                   {loading ? (
-                    <div className="text-center py-4 text-sm text-muted-foreground">กำลังโหลด...</div>
+                    <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
+                      <div className="w-4 h-4 border-2 border-muted-foreground/20 border-t-muted-foreground/60 rounded-full animate-spin" />
+                      กำลังโหลด...
+                    </div>
                   ) : items.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-muted-foreground">—</div>
+                    <div className="flex flex-col items-center justify-center py-10 text-center">
+                      <col.icon className="w-6 h-6 text-muted-foreground/40 mb-1.5" />
+                      <span className="text-sm text-muted-foreground">ไม่มีคิว</span>
+                    </div>
                   ) : (
                     items.map((v) => (
                       <div key={v.id} className={`p-3 rounded-lg ${c.bg} border ${c.border}`}>
