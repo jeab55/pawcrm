@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { CalendarDays, Banknote, Syringe, AlertCircle, Clock, ChevronRight } from "lucide-react";
+import { CalendarDays, Banknote, Syringe, AlertCircle, Clock, ChevronRight, CalendarClock } from "lucide-react";
 import { Link } from "react-router-dom";
 import KPICard from "@/components/shared/KPICard";
 import { Button } from "@/components/ui/button";
@@ -13,20 +13,23 @@ export default function Dashboard() {
   const [appointments, setAppointments] = useState([]);
   const [invoices, setInvoices] = useState([]);
   const [vaccinations, setVaccinations] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [range, setRange] = useState("30");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const [appts, invs, vacs] = await Promise.all([
+        const [appts, invs, vacs, bkgs] = await Promise.all([
           base44.entities.Appointment.filter({}, "-date", 200),
           base44.entities.Invoice.filter({}, "-created_date", 200),
           base44.entities.Vaccination.filter({}, "-next_due_date", 200),
+          base44.entities.QueueBooking.filter({ booking_date: moment().format("YYYY-MM-DD") }, "booking_time", 200),
         ]);
         setAppointments(appts);
         setInvoices(invs);
         setVaccinations(vacs);
+        setBookings(bkgs);
       } catch {}
       setLoading(false);
     }
@@ -50,6 +53,8 @@ export default function Dashboard() {
   const pendingAmount = invoices
     .filter((i) => i.status === "Pending" || i.status === "Draft")
     .reduce((sum, i) => sum + (i.total || 0), 0);
+
+  const pendingBookings = bookings.filter((b) => b.status === "Booked" || b.status === "Confirmed").length;
 
   // Revenue chart data
   const getDays = () => {
@@ -97,9 +102,9 @@ export default function Dashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard icon={CalendarDays} label="นัดหมายวันนี้" value={todayAppts.length} sub={`เสร็จ ${doneToday} / เหลือ ${todayAppts.length - doneToday}`} color="primary" />
+        <Link to="/queue-bookings"><KPICard icon={CalendarClock} label="คิวจองวันนี้" value={bookings.length} sub={`รอเช็คอิน ${pendingBookings}`} color="blue" /></Link>
         <KPICard icon={Banknote} label="รายได้ 7 วัน" value={formatBaht(last7)} color="emerald" />
         <KPICard icon={Syringe} label="วัคซีนใกล้กำหนด" value={upcoming14Vac} sub="ภายใน 14 วัน" color="amber" />
-        <KPICard icon={AlertCircle} label="ค้างชำระ" value={formatBaht(pendingAmount)} color="red" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

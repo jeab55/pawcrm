@@ -3,12 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, PawPrint, CalendarDays, Syringe,
   Package, Receipt, ShieldCheck, BarChart3, Settings, LogOut, Plus,
-  ClipboardList, Stethoscope, Pill, Tv, Users, UserCog
+  ClipboardList, Stethoscope, Pill, Tv, Users, UserCog, CalendarClock
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const menuItems = [
   { label: "แดชบอร์ด", icon: LayoutDashboard, path: "/" },
+  { label: "จองคิว", icon: CalendarClock, path: "/queue-bookings" },
   { label: "บอร์ดคิว", icon: Tv, path: "/queue-board" },
   { label: "เคาน์เตอร์", icon: ClipboardList, path: "/counter" },
   { label: "ห้องตรวจ", icon: Stethoscope, path: "/exam-room" },

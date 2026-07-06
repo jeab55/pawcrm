@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, UserPlus, Clock, PawPrint, Phone } from "lucide-react";
 import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
+import TodayBookings from "@/components/booking/TodayBookings";
 
 const statusConfig = {
   "Waiting": { label: "รอตรวจ", color: "bg-amber-100 text-amber-700 border-amber-200" },
@@ -233,6 +234,8 @@ export default function Counter() {
           </CardContent>
         </Card>
       </div>
+
+      <TodayBookings onCheckedIn={loadVisits} />
     </div>
   );
 }
