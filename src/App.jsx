@@ -36,6 +36,7 @@ import QueueBookings from '@/pages/QueueBookings';
 import Owners from '@/pages/Owners';
 import OwnerDetail from '@/pages/OwnerDetail';
 import Veterinarians from '@/pages/Veterinarians';
+import Staff from '@/pages/Staff';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -83,6 +84,7 @@ const AuthenticatedApp = () => {
           <Route path="/owners" element={<Owners />} />
           <Route path="/owners/:id" element={<OwnerDetail />} />
           <Route path="/veterinarians" element={<Veterinarians />} />
+          <Route path="/staff" element={<Staff />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

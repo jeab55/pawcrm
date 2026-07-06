@@ -10,6 +10,8 @@ import { Search, UserPlus, Clock, PawPrint, Phone } from "lucide-react";
 import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
 import TodayBookings from "@/components/booking/TodayBookings";
+import StationStaffBar from "@/components/staff/StationStaffBar";
+import { useStationStaff } from "@/hooks/useStationStaff";
 
 const statusConfig = {
   "Waiting": { label: "รอตรวจ", color: "bg-amber-100 text-amber-700 border-amber-200" },
@@ -28,6 +30,7 @@ export default function Counter() {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
+  const { staffList, selected: staff, select, loading: staffLoading } = useStationStaff("counter", ["counter", "admin", "assistant"]);
 
   const loadVisits = async () => {
     try {
@@ -87,6 +90,7 @@ export default function Counter() {
         reason: reason || undefined,
         has_meds: false,
         dispensed: false,
+        checked_in_by: staff ? (staff.nickname || staff.full_name) : undefined,
       });
       setSelectedPet(null);
       setReason("");
@@ -108,6 +112,8 @@ export default function Counter() {
         <h1 className="text-2xl font-bold text-foreground">เคาน์เตอร์ — เช็คอินผู้ป่วย</h1>
         <p className="text-muted-foreground text-sm mt-1">ค้นหาสัตว์เลี้ยงและออกเลขคิว</p>
       </div>
+
+      <StationStaffBar label="ผู้ปฏิบัติงานประจำจุด (เช็คอินโดย)" staffList={staffList} selected={staff} onSelect={select} loading={staffLoading} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Check-in panel */}

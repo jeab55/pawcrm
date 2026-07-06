@@ -10,8 +10,11 @@ import { Stethoscope, Pill, Plus, Trash2, Check, UserCheck, PawPrint } from "luc
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
+import StationStaffBar from "@/components/staff/StationStaffBar";
+import { useStationStaff } from "@/hooks/useStationStaff";
 
 export default function ExamRoom() {
+  const { staffList, selected: staff, select, loading: staffLoading } = useStationStaff("exam-room", ["assistant", "veterinarian", "admin"]);
   const [visits, setVisits] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [vets, setVets] = useState([]);
@@ -115,6 +118,7 @@ export default function ExamRoom() {
         vet_id: vetId || undefined,
         prescriptions: prescriptions.length > 0 ? prescriptions : undefined,
         has_meds: prescriptions.length > 0,
+        assistant_name: staff ? (staff.nickname || staff.full_name) : undefined,
         status: withMeds ? "Pharmacy Pending" : "Completed",
         completed_time: !withMeds ? new Date().toISOString() : undefined,
       };
@@ -142,6 +146,8 @@ export default function ExamRoom() {
         <h1 className="text-2xl font-bold text-foreground">ห้องตรวจ</h1>
         <p className="text-muted-foreground text-sm mt-1">เรียกคิว บันทึกตรวจ วินิจฉัย และสั่งยา</p>
       </div>
+
+      <StationStaffBar label="ผู้ช่วยประจำเคส (บันทึกโดย)" staffList={staffList} selected={staff} onSelect={select} loading={staffLoading} />
 
       <div className="grid gap-6 lg:grid-cols-[300px_1fr]">
         {/* Patient queue sidebar */}

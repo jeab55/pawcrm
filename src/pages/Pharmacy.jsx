@@ -6,8 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Pill, CheckCircle, Package, ChevronDown, ChevronUp, ClipboardList } from "lucide-react";
 import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
+import StationStaffBar from "@/components/staff/StationStaffBar";
+import { useStationStaff } from "@/hooks/useStationStaff";
 
 export default function Pharmacy() {
+  const { staffList, selected: staff, select, loading: staffLoading } = useStationStaff("pharmacy", ["pharmacy", "assistant", "admin"]);
   const [visits, setVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
@@ -46,6 +49,7 @@ export default function Pharmacy() {
         status: "Completed",
         dispensed: true,
         completed_time: new Date().toISOString(),
+        dispensed_by: staff ? (staff.nickname || staff.full_name) : undefined,
       });
       await loadVisits();
     } catch (e) {
@@ -61,6 +65,8 @@ export default function Pharmacy() {
         <h1 className="text-2xl font-bold text-foreground">ห้องยา</h1>
         <p className="text-muted-foreground text-sm mt-1">รายการรอจ่ายยา — กดจ่ายยาเพื่อตัดสต็อกอัตโนมัติ</p>
       </div>
+
+      <StationStaffBar label="ผู้จ่ายยาประจำจุด (จ่ายยาโดย)" staffList={staffList} selected={staff} onSelect={select} loading={staffLoading} />
 
       {/* Pending section */}
       <Card>
@@ -168,7 +174,7 @@ export default function Pharmacy() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-sm">{v.pet_name}</div>
-                    <div className="text-xs text-muted-foreground">{v.owner_name}</div>
+                    <div className="text-xs text-muted-foreground">{v.owner_name}{v.dispensed_by ? ` · จ่ายโดย ${v.dispensed_by}` : ""}</div>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {v.completed_time ? moment(v.completed_time).format("HH:mm") : ""}

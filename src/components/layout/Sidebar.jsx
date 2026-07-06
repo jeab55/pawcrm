@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, PawPrint, CalendarDays, Syringe,
   Package, Receipt, ShieldCheck, BarChart3, Settings, LogOut, Plus,
-  ClipboardList, Stethoscope, Pill, Tv, Users, UserCog, CalendarClock
+  ClipboardList, Stethoscope, Pill, Tv, Users, UserCog, CalendarClock, UsersRound
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
@@ -23,6 +23,7 @@ const menuItems = [
   { label: "ใบเสร็จ", icon: Receipt, path: "/billing" },
   { label: "ประกัน", icon: ShieldCheck, path: "/insurance" },
   { label: "รายงาน", icon: BarChart3, path: "/reports" },
+  { label: "พนักงาน", icon: UsersRound, path: "/staff" },
   { label: "ตั้งค่า", icon: Settings, path: "/settings" },
 ];
 
