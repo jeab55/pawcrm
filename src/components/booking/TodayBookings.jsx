@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CalendarClock, LogIn, Phone } from "lucide-react";
+import { CalendarClock, LogIn, Phone, Stethoscope } from "lucide-react";
 import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
 import { checkInBooking, todayVisitsFilter } from "@/lib/checkInBooking";
@@ -66,6 +66,11 @@ export default function TodayBookings({ onCheckedIn }) {
                   <div className="text-sm text-muted-foreground truncate flex items-center gap-1">
                     {b.owner_name} <Phone className="w-3 h-3" /> {b.owner_phone}
                   </div>
+                  {b.veterinarian_name && (
+                    <div className="text-xs text-primary flex items-center gap-1 mt-0.5">
+                      <Stethoscope className="w-3 h-3" />{b.veterinarian_name}
+                    </div>
+                  )}
                 </div>
                 <Badge variant="outline" className={b.status === "Confirmed" ? "bg-blue-100 text-blue-700 border-blue-200" : "bg-amber-100 text-amber-700 border-amber-200"}>
                   {b.status === "Confirmed" ? "ยืนยันแล้ว" : "จองแล้ว"}

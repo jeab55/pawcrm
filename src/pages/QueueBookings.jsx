@@ -9,6 +9,7 @@ import moment from "moment";
 import KPICard from "@/components/shared/KPICard";
 import EmptyState from "@/components/shared/EmptyState";
 import BookingForm from "@/components/booking/BookingForm";
+import VetScheduleToday from "@/components/booking/VetScheduleToday";
 import { checkInBooking, todayVisitsFilter } from "@/lib/checkInBooking";
 
 const statusConfig = {
@@ -33,6 +34,12 @@ export default function QueueBookings() {
   const [filterVet, setFilterVet] = useState("all");
   const [search, setSearch] = useState("");
 
+  // Allow deep-linking with ?vet=<id> (e.g. from Veterinarians page)
+  useEffect(() => {
+    const vetParam = new URLSearchParams(window.location.search).get("vet");
+    if (vetParam) setFilterVet(vetParam);
+  }, []);
+
   const load = async () => {
     try {
       const all = await base44.entities.QueueBooking.list("-booking_date", 500);
@@ -55,6 +62,8 @@ export default function QueueBookings() {
   const tomorrowCount = bookings.filter((b) => b.booking_date === tomorrow && b.status !== "Cancelled").length;
   const bookedCount = bookings.filter((b) => b.status === "Booked" || b.status === "Confirmed").length;
   const checkedInCount = bookings.filter((b) => b.status === "Checked In").length;
+
+  const todayBookings = useMemo(() => bookings.filter((b) => b.booking_date === today), [bookings, today]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -98,6 +107,10 @@ export default function QueueBookings() {
         <KPICard icon={Stethoscope} label="รอยืนยัน/จองแล้ว" value={bookedCount} color="amber" />
         <KPICard icon={CheckCircle2} label="เช็คอินแล้ว" value={checkedInCount} color="emerald" />
       </div>
+
+      {vets.length > 0 && (
+        <VetScheduleToday vets={vets} bookings={todayBookings} onFilterVet={(id) => { setFilterVet(id); setFilterDate(today); }} />
+      )}
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row gap-3">
@@ -145,7 +158,7 @@ export default function QueueBookings() {
                     <td className="p-3"><div className="font-medium">{b.pet_name}</div><div className="text-xs text-muted-foreground">{[b.species, b.breed].filter(Boolean).join(" • ")}</div></td>
                     <td className="p-3"><div>{b.owner_name}</div><div className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{b.owner_phone}</div></td>
                     <td className="p-3">{b.service_type}<div className="text-xs text-muted-foreground">{sourceLabels[b.source] || b.source}</div></td>
-                    <td className="p-3 text-muted-foreground">{b.veterinarian_name || "—"}</td>
+                    <td className="p-3">{b.veterinarian_name ? <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Stethoscope className="w-3 h-3 mr-1" />{b.veterinarian_name}</Badge> : <span className="text-muted-foreground text-xs">ไม่ระบุหมอ</span>}</td>
                     <td className="p-3"><Badge className={statusConfig[b.status]?.color} variant="outline">{statusConfig[b.status]?.label}</Badge></td>
                     <td className="p-3"><div className="flex justify-end gap-1">{renderActions(b)}</div></td>
                   </tr>
@@ -167,7 +180,10 @@ export default function QueueBookings() {
                 </div>
                 <div className="text-sm text-muted-foreground flex items-center gap-2"><CalendarClock className="w-4 h-4" />{moment(b.booking_date).format("D MMM")} • {b.booking_time} น.</div>
                 <div className="text-sm">{b.owner_name} <span className="text-muted-foreground">· {b.owner_phone}</span></div>
-                <div className="text-sm text-muted-foreground">{b.service_type}{b.veterinarian_name ? ` • ${b.veterinarian_name}` : ""}</div>
+                <div className="text-sm text-muted-foreground">{b.service_type}</div>
+                {b.veterinarian_name ? (
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Stethoscope className="w-3 h-3 mr-1" />{b.veterinarian_name}</Badge>
+                ) : <span className="text-xs text-muted-foreground">ไม่ระบุหมอ</span>}
                 <div className="flex gap-2 pt-1">{renderActions(b)}</div>
               </div>
             ))}

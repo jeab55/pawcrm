@@ -55,6 +55,7 @@ export default function Dashboard() {
     .reduce((sum, i) => sum + (i.total || 0), 0);
 
   const pendingBookings = bookings.filter((b) => b.status === "Booked" || b.status === "Confirmed").length;
+  const vetBookings = bookings.filter((b) => b.veterinarian_id && b.status !== "Cancelled" && b.status !== "No Show").length;
 
   // Revenue chart data
   const getDays = () => {
@@ -102,7 +103,7 @@ export default function Dashboard() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard icon={CalendarDays} label="นัดหมายวันนี้" value={todayAppts.length} sub={`เสร็จ ${doneToday} / เหลือ ${todayAppts.length - doneToday}`} color="primary" />
-        <Link to="/queue-bookings"><KPICard icon={CalendarClock} label="คิวจองวันนี้" value={bookings.length} sub={`รอเช็คอิน ${pendingBookings}`} color="blue" /></Link>
+        <Link to="/queue-bookings"><KPICard icon={CalendarClock} label="คิวจองวันนี้" value={bookings.length} sub={`จองหมอแล้ว ${vetBookings} · รอเช็คอิน ${pendingBookings}`} color="blue" /></Link>
         <KPICard icon={Banknote} label="รายได้ 7 วัน" value={formatBaht(last7)} color="emerald" />
         <KPICard icon={Syringe} label="วัคซีนใกล้กำหนด" value={upcoming14Vac} sub="ภายใน 14 วัน" color="amber" />
       </div>

@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UserCog, Plus, Search, Phone, Mail, Camera, Pencil } from "lucide-react";
+import { UserCog, Plus, Search, Phone, Mail, Camera, Pencil, CalendarClock } from "lucide-react";
+import { Link } from "react-router-dom";
+import moment from "moment";
 import EmptyState from "@/components/shared/EmptyState";
 
 const specializations = ["อายุรกรรมสัตว์", "ศัลยกรรม", "ตรวจวินิจฉัย", "วัคซีนและป้องกัน", "ทันตกรรม", "ผิวหนัง", "อายุรกรรม", "ฉุกเฉิน", "อื่นๆ"];
@@ -26,6 +28,7 @@ const colorMap = {
 
 export default function Veterinarians() {
   const [vets, setVets] = useState([]);
+  const [bookingCounts, setBookingCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showDialog, setShowDialog] = useState(false);
@@ -38,6 +41,15 @@ export default function Veterinarians() {
     try {
       const data = await base44.entities.Veterinarian.list("-created_date", 200);
       setVets(data);
+      const today = moment().format("YYYY-MM-DD");
+      const todayBookings = await base44.entities.QueueBooking.filter({ booking_date: today }, "booking_time", 200);
+      const counts = {};
+      todayBookings.forEach((b) => {
+        if (b.veterinarian_id && b.status !== "Cancelled" && b.status !== "No Show") {
+          counts[b.veterinarian_id] = (counts[b.veterinarian_id] || 0) + 1;
+        }
+      });
+      setBookingCounts(counts);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
@@ -138,7 +150,10 @@ export default function Veterinarians() {
                       {vet.status === "Active" ? "ใช้งาน" : "ปิดใช้งาน"}
                     </Badge>
                   </div>
-                  <div className="flex justify-end mt-3">
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                    <Link to={`/queue-bookings?vet=${vet.id}`} className="flex items-center gap-1.5 text-sm text-primary hover:underline">
+                      <CalendarClock className="w-4 h-4" />คิวจองวันนี้ {bookingCounts[vet.id] || 0} รายการ
+                    </Link>
                     <Button variant="ghost" size="sm" onClick={() => openEdit(vet)}><Pencil className="w-3.5 h-3.5 mr-1" />แก้ไข</Button>
                   </div>
                 </CardContent>
