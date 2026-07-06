@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { CalendarClock, Plus, Search, Phone, Stethoscope, LogIn, CheckCircle2, XCircle } from "lucide-react";
+import { CalendarClock, Plus, Search, Phone, Stethoscope, LogIn, CheckCircle2, XCircle, List, CalendarDays } from "lucide-react";
 import moment from "moment";
 import KPICard from "@/components/shared/KPICard";
 import EmptyState from "@/components/shared/EmptyState";
 import BookingForm from "@/components/booking/BookingForm";
+import BookingCalendar from "@/components/booking/BookingCalendar";
 import VetScheduleToday from "@/components/booking/VetScheduleToday";
 import { checkInBooking, todayVisitsFilter } from "@/lib/checkInBooking";
 
@@ -27,7 +28,9 @@ export default function QueueBookings() {
   const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [formPrefill, setFormPrefill] = useState(null);
   const [checkingId, setCheckingId] = useState(null);
+  const [viewMode, setViewMode] = useState("list"); // "list" | "calendar"
 
   const [filterDate, setFilterDate] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -98,7 +101,7 @@ export default function QueueBookings() {
           <h1 className="text-2xl font-bold flex items-center gap-2"><CalendarClock className="w-6 h-6 text-primary" />จองคิว</h1>
           <p className="text-muted-foreground text-sm">รับจองคิวล่วงหน้า แล้วเช็คอินเป็นคิวจริงที่เคาน์เตอร์</p>
         </div>
-        <Button onClick={() => setShowForm(true)}><Plus className="w-4 h-4 mr-2" />สร้างคิวจอง</Button>
+        <Button onClick={() => { setFormPrefill(null); setShowForm(true); }}><Plus className="w-4 h-4 mr-2" />สร้างคิวจอง</Button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -108,90 +111,111 @@ export default function QueueBookings() {
         <KPICard icon={CheckCircle2} label="เช็คอินแล้ว" value={checkedInCount} color="emerald" />
       </div>
 
-      {vets.length > 0 && (
+      {viewMode === "list" && vets.length > 0 && (
         <VetScheduleToday vets={vets} bookings={todayBookings} onFilterVet={(id) => { setFilterVet(id); setFilterDate(today); }} />
       )}
 
-      {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ค้นหาชื่อสัตว์ / เจ้าของ / เบอร์โทร" className="pl-9" />
-        </div>
-        <Input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="md:w-40" />
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="md:w-40"><SelectValue placeholder="สถานะ" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">ทุกสถานะ</SelectItem>
-            {statusList.map((s) => <SelectItem key={s} value={s}>{statusConfig[s].label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Select value={filterVet} onValueChange={setFilterVet}>
-          <SelectTrigger className="md:w-44"><SelectValue placeholder="สัตวแพทย์" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">ทุกสัตวแพทย์</SelectItem>
-            {vets.map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
+      {/* View toggle */}
+      <div className="inline-flex rounded-lg border bg-muted/40 p-0.5">
+        <button onClick={() => setViewMode("list")} className={"px-4 py-1.5 text-sm rounded-md flex items-center gap-1.5 " + (viewMode === "list" ? "bg-white shadow-sm font-medium" : "text-muted-foreground")}><List className="w-4 h-4" />รายการ</button>
+        <button onClick={() => setViewMode("calendar")} className={"px-4 py-1.5 text-sm rounded-md flex items-center gap-1.5 " + (viewMode === "calendar" ? "bg-white shadow-sm font-medium" : "text-muted-foreground")}><CalendarDays className="w-4 h-4" />Calendar</button>
       </div>
 
-      {filtered.length === 0 ? (
-        <EmptyState icon={CalendarClock} title="ยังไม่มีคิวจองในช่วงนี้" description="กดปุ่ม “สร้างคิวจอง” ด้านบนขวาเพื่อเพิ่มการจองคิวล่วงหน้า" />
-      ) : (
-        <>
-          {/* Desktop table */}
-          <div className="hidden lg:block bg-white rounded-xl border overflow-hidden">
-            <table className="w-full text-sm">
-              <thead><tr className="bg-muted/30 text-left">
-                <th className="p-3 font-medium">วันที่ / เวลา</th>
-                <th className="p-3 font-medium">สัตว์เลี้ยง</th>
-                <th className="p-3 font-medium">เจ้าของ</th>
-                <th className="p-3 font-medium">บริการ</th>
-                <th className="p-3 font-medium">สัตวแพทย์</th>
-                <th className="p-3 font-medium">สถานะ</th>
-                <th className="p-3 font-medium text-right">จัดการ</th>
-              </tr></thead>
-              <tbody>
-                {filtered.map((b) => (
-                  <tr key={b.id} className="border-t hover:bg-muted/20">
-                    <td className="p-3"><div className="font-medium">{moment(b.booking_date).format("D MMM")}</div><div className="text-xs text-muted-foreground">{b.booking_time} น.</div></td>
-                    <td className="p-3"><div className="font-medium">{b.pet_name}</div><div className="text-xs text-muted-foreground">{[b.species, b.breed].filter(Boolean).join(" • ")}</div></td>
-                    <td className="p-3"><div>{b.owner_name}</div><div className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{b.owner_phone}</div></td>
-                    <td className="p-3">{b.service_type}<div className="text-xs text-muted-foreground">{sourceLabels[b.source] || b.source}</div></td>
-                    <td className="p-3">{b.veterinarian_name ? <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Stethoscope className="w-3 h-3 mr-1" />{b.veterinarian_name}</Badge> : <span className="text-muted-foreground text-xs">ไม่ระบุหมอ</span>}</td>
-                    <td className="p-3"><Badge className={statusConfig[b.status]?.color} variant="outline">{statusConfig[b.status]?.label}</Badge></td>
-                    <td className="p-3"><div className="flex justify-end gap-1">{renderActions(b)}</div></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="lg:hidden space-y-3">
-            {filtered.map((b) => (
-              <div key={b.id} className="bg-white rounded-xl border p-4 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <div className="font-semibold">{b.pet_name}</div>
-                    <div className="text-xs text-muted-foreground">{[b.species, b.breed].filter(Boolean).join(" • ")}</div>
-                  </div>
-                  <Badge className={statusConfig[b.status]?.color} variant="outline">{statusConfig[b.status]?.label}</Badge>
-                </div>
-                <div className="text-sm text-muted-foreground flex items-center gap-2"><CalendarClock className="w-4 h-4" />{moment(b.booking_date).format("D MMM")} • {b.booking_time} น.</div>
-                <div className="text-sm">{b.owner_name} <span className="text-muted-foreground">· {b.owner_phone}</span></div>
-                <div className="text-sm text-muted-foreground">{b.service_type}</div>
-                {b.veterinarian_name ? (
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Stethoscope className="w-3 h-3 mr-1" />{b.veterinarian_name}</Badge>
-                ) : <span className="text-xs text-muted-foreground">ไม่ระบุหมอ</span>}
-                <div className="flex gap-2 pt-1">{renderActions(b)}</div>
-              </div>
-            ))}
-          </div>
-        </>
+      {viewMode === "calendar" && (
+        <BookingCalendar
+          bookings={bookings}
+          vets={vets}
+          onCreateSlot={({ date, time, vetId }) => {
+            setFormPrefill({ booking_date: date, booking_time: time, veterinarian_id: vetId || "none", duration_minutes: 30 });
+            setShowForm(true);
+          }}
+        />
       )}
 
-      <BookingForm open={showForm} onOpenChange={setShowForm} vets={vets} onSaved={load} />
+      {viewMode === "list" && (
+        <div className="space-y-6">
+          {/* Filters */}
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="ค้นหาชื่อสัตว์ / เจ้าของ / เบอร์โทร" className="pl-9" />
+            </div>
+            <Input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="md:w-40" />
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="md:w-40"><SelectValue placeholder="สถานะ" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกสถานะ</SelectItem>
+                {statusList.map((s) => <SelectItem key={s} value={s}>{statusConfig[s].label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select value={filterVet} onValueChange={setFilterVet}>
+              <SelectTrigger className="md:w-44"><SelectValue placeholder="สัตวแพทย์" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">ทุกสัตวแพทย์</SelectItem>
+                {vets.map((v) => <SelectItem key={v.id} value={v.id}>{v.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {filtered.length === 0 ? (
+            <EmptyState icon={CalendarClock} title="ยังไม่มีคิวจองในช่วงนี้" description="กดปุ่ม “สร้างคิวจอง” ด้านบนขวาเพื่อเพิ่มการจองคิวล่วงหน้า" />
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden lg:block bg-white rounded-xl border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead><tr className="bg-muted/30 text-left">
+                    <th className="p-3 font-medium">วันที่ / เวลา</th>
+                    <th className="p-3 font-medium">สัตว์เลี้ยง</th>
+                    <th className="p-3 font-medium">เจ้าของ</th>
+                    <th className="p-3 font-medium">บริการ</th>
+                    <th className="p-3 font-medium">สัตวแพทย์</th>
+                    <th className="p-3 font-medium">สถานะ</th>
+                    <th className="p-3 font-medium text-right">จัดการ</th>
+                  </tr></thead>
+                  <tbody>
+                    {filtered.map((b) => (
+                      <tr key={b.id} className="border-t hover:bg-muted/20">
+                        <td className="p-3"><div className="font-medium">{moment(b.booking_date).format("D MMM")}</div><div className="text-xs text-muted-foreground">{b.booking_time} น.</div></td>
+                        <td className="p-3"><div className="font-medium">{b.pet_name}</div><div className="text-xs text-muted-foreground">{[b.species, b.breed].filter(Boolean).join(" • ")}</div></td>
+                        <td className="p-3"><div>{b.owner_name}</div><div className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" />{b.owner_phone}</div></td>
+                        <td className="p-3">{b.service_type}<div className="text-xs text-muted-foreground">{sourceLabels[b.source] || b.source}</div></td>
+                        <td className="p-3">{b.veterinarian_name ? <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Stethoscope className="w-3 h-3 mr-1" />{b.veterinarian_name}</Badge> : <span className="text-muted-foreground text-xs">ไม่ระบุหมอ</span>}</td>
+                        <td className="p-3"><Badge className={statusConfig[b.status]?.color} variant="outline">{statusConfig[b.status]?.label}</Badge></td>
+                        <td className="p-3"><div className="flex justify-end gap-1">{renderActions(b)}</div></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="lg:hidden space-y-3">
+                {filtered.map((b) => (
+                  <div key={b.id} className="bg-white rounded-xl border p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="font-semibold">{b.pet_name}</div>
+                        <div className="text-xs text-muted-foreground">{[b.species, b.breed].filter(Boolean).join(" • ")}</div>
+                      </div>
+                      <Badge className={statusConfig[b.status]?.color} variant="outline">{statusConfig[b.status]?.label}</Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground flex items-center gap-2"><CalendarClock className="w-4 h-4" />{moment(b.booking_date).format("D MMM")} • {b.booking_time} น.</div>
+                    <div className="text-sm">{b.owner_name} <span className="text-muted-foreground">· {b.owner_phone}</span></div>
+                    <div className="text-sm text-muted-foreground">{b.service_type}</div>
+                    {b.veterinarian_name ? (
+                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20"><Stethoscope className="w-3 h-3 mr-1" />{b.veterinarian_name}</Badge>
+                    ) : <span className="text-xs text-muted-foreground">ไม่ระบุหมอ</span>}
+                    <div className="flex gap-2 pt-1">{renderActions(b)}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      <BookingForm open={showForm} onOpenChange={setShowForm} vets={vets} onSaved={load} prefill={formPrefill} />
     </div>
   );
 

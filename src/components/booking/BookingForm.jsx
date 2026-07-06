@@ -25,7 +25,7 @@ const emptyForm = {
   symptoms_or_note: "", source: "Phone",
 };
 
-export default function BookingForm({ open, onOpenChange, vets, onSaved }) {
+export default function BookingForm({ open, onOpenChange, vets, onSaved, prefill }) {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +38,7 @@ export default function BookingForm({ open, onOpenChange, vets, onSaved }) {
   // Load existing schedule data whenever the dialog opens
   useEffect(() => {
     if (!open) return;
-    setForm(emptyForm);
+    setForm({ ...emptyForm, ...(prefill || {}) });
     setError("");
     (async () => {
       try {
