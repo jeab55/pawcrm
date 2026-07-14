@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { PawPrint, Plus, Search, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
@@ -120,7 +120,10 @@ export default function Pets() {
       {/* Add Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent>
-          <DialogHeader><DialogTitle>เพิ่มสัตว์เลี้ยงใหม่</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>เพิ่มสัตว์เลี้ยงใหม่</DialogTitle>
+            <DialogDescription>กรอกข้อมูลสัตว์เลี้ยงและเจ้าของ ฟิลด์ที่มี * จำเป็นต้องกรอก</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div><Label>ชื่อสัตว์เลี้ยง *</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} /></div>
             <div className="grid grid-cols-2 gap-4">

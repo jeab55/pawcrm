@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, Phone, Mail, PawPrint, CalendarDays, Syringe, FileText, ChevronRight } from "lucide-react";
+import { ArrowLeft, Phone, Mail, PawPrint, CalendarDays, Syringe, FileText, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import moment from "moment";
+import { Button } from "@/components/ui/button";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import PetEditForm from "@/components/pets/PetEditForm";
 import MedicalRecordForm from "@/components/medical/MedicalRecordForm";
 import MedicalRecordTimeline from "@/components/medical/MedicalRecordTimeline";
 
@@ -15,6 +18,19 @@ export default function PetDetail() {
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [vets, setVets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await base44.entities.Pet.delete(id);
+      navigate("/pets");
+    } catch {
+      setDeleting(false);
+    }
+  };
 
   const load = useCallback(async () => {
     try {
@@ -43,9 +59,15 @@ export default function PetDetail() {
 
   return (
     <div className="space-y-6">
-      <button onClick={() => navigate("/pets")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="w-4 h-4" /> กลับ
-      </button>
+      <div className="flex items-center justify-between gap-3">
+        <button onClick={() => navigate("/pets")} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="w-4 h-4" /> กลับ
+        </button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowEdit(true)}><Pencil className="w-4 h-4 mr-2" />แก้ไขข้อมูล</Button>
+          <Button variant="outline" size="sm" onClick={() => setShowDelete(true)} className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"><Trash2 className="w-4 h-4 mr-2" />ลบสัตว์เลี้ยง</Button>
+        </div>
+      </div>
 
       <div className="bg-white rounded-xl border p-6">
         <div className="flex flex-col sm:flex-row gap-4">
@@ -134,6 +156,25 @@ export default function PetDetail() {
           )}
         </div>
       </div>
+
+      <PetEditForm open={showEdit} onOpenChange={setShowEdit} pet={pet} onSaved={load} />
+
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>ยืนยันการลบสัตว์เลี้ยง</AlertDialogTitle>
+            <AlertDialogDescription>
+              คุณกำลังจะลบ "{pet.name}" ออกจากระบบอย่างถาวร การกระทำนี้ไม่สามารถย้อนกลับได้
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>ยกเลิก</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? "กำลังลบ..." : "ลบถาวร"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
