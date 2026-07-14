@@ -1,11 +1,10 @@
 import { createClient } from '@base44/sdk';
 import { appParams } from '@/lib/app-params';
-import { createBase55Client } from './base55Client';
 
 const { appId, token, functionsVersion, appBaseUrl } = appParams;
 
 //Create a client with authentication required
-const base44Sdk = createClient({
+export const base44 = createClient({
   appId,
   token,
   functionsVersion,
@@ -13,8 +12,3 @@ const base44Sdk = createClient({
   requiresAuth: false,
   appBaseUrl
 });
-
-// Preserve the existing entity API so pages can migrate incrementally. On Base55,
-// Owner/Pet/Visit use the app-scoped MySQL contract; local/Base44 development keeps
-// using the original SDK.
-export const base44 = globalThis.B55?.entity ? createBase55Client(base44Sdk) : base44Sdk;
