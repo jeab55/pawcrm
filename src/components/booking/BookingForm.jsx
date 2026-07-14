@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { AlertCircle } from "lucide-react";
 import moment from "moment";
 import { generateSlots, buildBusyIntervals, computeSlotAvailability, hasConflict } from "@/lib/vetSlots";
@@ -120,7 +120,10 @@ export default function BookingForm({ open, onOpenChange, vets, onSaved, prefill
   return (
     <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) { setError(""); } }}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>สร้างคิวจอง</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>สร้างคิวจอง</DialogTitle>
+          <DialogDescription>กรอกข้อมูลนัดจองคิวและเลือกเวลาที่ว่าง ฟิลด์ที่มี * จำเป็นต้องกรอก</DialogDescription>
+        </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div><Label>ชื่อสัตว์เลี้ยง *</Label><Input value={form.pet_name} onChange={(e) => set("pet_name", e.target.value)} /></div>

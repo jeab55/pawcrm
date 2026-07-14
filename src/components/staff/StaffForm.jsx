@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,6 +52,7 @@ export default function StaffForm({ open, onOpenChange, staff, vets, onSaved }) 
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{staff ? "แก้ไขพนักงาน" : "เพิ่มพนักงาน"}</DialogTitle>
+          <DialogDescription>กรอกข้อมูลพนักงาน บทบาท และสีป้ายกำกับ ฟิลด์ที่มี * จำเป็นต้องกรอก</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">

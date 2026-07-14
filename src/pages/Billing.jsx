@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Receipt, Plus, Banknote, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -122,7 +122,10 @@ export default function Billing() {
 
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent>
-          <DialogHeader><DialogTitle>สร้างใบเสร็จ</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>สร้างใบเสร็จ</DialogTitle>
+            <DialogDescription>กรอกรายละเอียดใบเสร็จรับเงิน ฟิลด์ที่มี * จำเป็นต้องกรอก</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div><Label>ชื่อสัตว์เลี้ยง *</Label><Input value={form.pet_name} onChange={(e) => setForm({...form, pet_name: e.target.value})} /></div>
             <div><Label>ชื่อเจ้าของ *</Label><Input value={form.owner_name} onChange={(e) => setForm({...form, owner_name: e.target.value})} /></div>

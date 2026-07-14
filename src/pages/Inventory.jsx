@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Package, Plus, Search, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -135,7 +135,10 @@ export default function Inventory() {
 
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>เพิ่มยา / อุปกรณ์</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>เพิ่มยา / อุปกรณ์</DialogTitle>
+            <DialogDescription>เพิ่มรายการยาหรืออุปกรณ์เข้าสต็อก ฟิลด์ที่มี * จำเป็นต้องกรอก</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div><Label>ชื่อ *</Label><Input value={form.name} onChange={(e) => setForm({...form, name: e.target.value})} /></div>
