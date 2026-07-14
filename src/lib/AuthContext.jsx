@@ -22,6 +22,20 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
+
+      // Base55 owns the login gate and token. Do not call Base44 public-settings
+      // endpoints when the app is running inside Base55.
+      if (globalThis.B55?.auth) {
+        setAppPublicSettings({ id: 'app-420a3f', public_settings: {} });
+        try {
+          await checkUserAuth();
+        } catch (error) {
+          setAuthError({ type: 'auth_required', message: error.message || 'Authentication required' });
+        } finally {
+          setIsLoadingPublicSettings(false);
+        }
+        return;
+      }
       
       // First, check app public settings (with token if available)
       // This will tell us if auth is required, user not registered, etc.

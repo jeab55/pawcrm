@@ -1,126 +1,101 @@
+const APP_ID = "app-420a3f";
 const DATABASE = "b55_pawcrm";
-const USER = "@USER_EMAIL@";
 
-const tableNames = {
+const entityNames = {
+  Appointment: "appointments",
+  ClinicSettings: "clinic_settings",
+  InsuranceClaim: "insurance_claims",
+  InventoryItem: "inventory_items",
+  Invoice: "invoices",
+  MedicalRecord: "medical_records",
   Owner: "owners",
   Pet: "pets",
+  QueueBooking: "queue_bookings",
+  Service: "services",
+  Staff: "staff",
+  User: "users",
+  Vaccination: "vaccinations",
+  Veterinarian: "veterinarians",
   Visit: "visits",
 };
 
-const fieldNames = {
-  Owner: ["name", "phone", "email", "address", "photo_url", "id_card", "notes", "status"],
-  Pet: [
-    "name", "species", "breed", "gender", "date_of_birth", "weight", "color",
-    "microchip_id", "owner_id", "owner_name", "owner_phone", "owner_email",
-    "owner_address", "photo_url", "notes", "status", "allergies",
-  ],
-  Visit: [
-    "queue_number", "pet_id", "pet_name", "owner_name", "owner_phone", "species",
-    "status", "check_in_time", "exam_start_time", "completed_time", "vet_name",
-    "vet_id", "reason", "diagnosis", "treatment", "prescriptions", "has_meds",
-    "dispensed", "notes", "checked_in_by", "assistant_name", "prepared_by", "dispensed_by",
-  ],
-};
-
-function getDb() {
-  const db = globalThis.B55AI?.db;
-  if (typeof db !== "function") {
-    throw new Error("ไม่พบ B55AI.db — กรุณาเปิดแอปผ่าน Base55");
+function sdk() {
+  if (typeof globalThis.B55?.entity !== "function") {
+    throw new Error("ไม่พบ base55sdk.js — กรุณาเปิด PawCRM ผ่าน Base55");
   }
-  return db;
+  return globalThis.B55;
 }
 
-function normalizeRows(result) {
-  const candidates = [result?.rows, result?.data?.rows, result?.data, result?.result, result];
-  const rows = candidates.find(Array.isArray);
-  return rows ?? [];
+function normalizeSort(sort) {
+  const value = String(sort || "-created_at");
+  return value
+    .replace("created_date", "created_at")
+    .replace("updated_date", "updated_at");
 }
 
-async function query(sql, params = []) {
-  const result = await getDb()(DATABASE, sql, params);
-  if (result?.ok === false) throw new Error(result.error || result.message || "Base55 database error");
+function normalizeRow(row) {
+  if (!row || typeof row !== "object") return row;
+  return {
+    ...row,
+    created_date: row.created_date ?? row.created_at,
+    updated_date: row.updated_date ?? row.updated_at,
+  };
+}
+
+function normalizeRows(rows) {
+  if (!Array.isArray(rows)) return [];
+  const result = rows.map(normalizeRow);
+  if (rows.total !== undefined) result.total = rows.total;
   return result;
 }
 
-function safeFields(entity, values) {
-  const allowed = new Set(fieldNames[entity]);
-  return Object.entries(values)
-    .filter(([key, value]) => allowed.has(key) && value !== undefined)
-    .map(([key, value]) => [key, typeof value === "object" && value !== null ? JSON.stringify(value) : value]);
-}
-
-function sortClause(sort = "-created_date") {
-  const descending = String(sort).startsWith("-");
-  const requested = String(sort).replace(/^-/, "");
-  const column = requested === "created_date" ? "created_at" : requested === "updated_date" ? "updated_at" : "created_at";
-  return ` ORDER BY ${column} ${descending ? "DESC" : "ASC"}`;
-}
-
-function entityApi(entity) {
-  const table = tableNames[entity];
+function makeEntity(name) {
+  const api = () => sdk().entity(entityNames[name] || name);
   return {
     async list(sort, limit = 200) {
-      const result = await query(
-        `SELECT * FROM ${table} WHERE user_email = ?${sortClause(sort)} LIMIT ?`,
-        [USER, Number(limit)]
-      );
-      return normalizeRows(result);
+      return normalizeRows(await api().list({ sort: normalizeSort(sort), limit }));
     },
-
-    async filter(filters = {}, sort, limit = 200) {
-      const allowed = new Set(fieldNames[entity]);
-      const entries = Object.entries(filters).filter(([key]) => allowed.has(key));
-      const where = ["user_email = ?", ...entries.map(([key]) => `${key} = ?`)].join(" AND ");
-      const params = [USER, ...entries.map(([, value]) => value), Number(limit)];
-      const result = await query(`SELECT * FROM ${table} WHERE ${where}${sortClause(sort)} LIMIT ?`, params);
-      return normalizeRows(result);
+    async filter(where = {}, sort, limit = 200) {
+      return normalizeRows(await api().filter(where, { sort: normalizeSort(sort), limit }));
     },
-
     async get(id) {
-      const result = await query(`SELECT * FROM ${table} WHERE id = ? AND user_email = ? LIMIT 1`, [id, USER]);
-      return normalizeRows(result)[0] ?? null;
+      return normalizeRow(await api().get(id));
     },
-
-    async create(values) {
-      const fields = safeFields(entity, values);
-      if (!fields.length) throw new Error(`ไม่มีข้อมูลสำหรับสร้าง ${entity}`);
-      const columns = [...fields.map(([key]) => key), "user_email"];
-      const params = [...fields.map(([, value]) => value), USER];
-      const result = await query(
-        `INSERT INTO ${table} (${columns.join(", ")}) VALUES (${columns.map(() => "?").join(", ")})`,
-        params
-      );
-      const id = result?.insertId ?? result?.data?.insertId;
-      return id ? this.get(id) : { id, ...values };
+    async create(data) {
+      return normalizeRow(await api().create(data));
     },
-
-    async update(id, values) {
-      const fields = safeFields(entity, values);
-      if (!fields.length) return this.get(id);
-      await query(
-        `UPDATE ${table} SET ${fields.map(([key]) => `${key} = ?`).join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_email = ?`,
-        [...fields.map(([, value]) => value), id, USER]
-      );
-      return this.get(id);
+    async update(id, data) {
+      return normalizeRow(await api().update(id, data));
     },
-
     async delete(id) {
-      await query(`DELETE FROM ${table} WHERE id = ? AND user_email = ?`, [id, USER]);
-      return { id };
+      return api().remove(id);
     },
-
     subscribe(callback) {
-      const timer = globalThis.setInterval(callback, 15000);
+      const timer = globalThis.setInterval(() => callback({ type: "poll" }), 10000);
       return () => globalThis.clearInterval(timer);
     },
   };
 }
 
 export function createBase55Client(fallback) {
+  sdk().init({ app: APP_ID, database: DATABASE });
+
   const entities = new Proxy({}, {
-    get(_target, entity) {
-      return tableNames[entity] ? entityApi(entity) : fallback.entities[entity];
+    get(_target, name) {
+      return makeEntity(name);
     },
   });
-  return { ...fallback, entities };
+
+  const auth = {
+    me: () => sdk().auth.me(),
+    logout: () => sdk().auth.logout(),
+    redirectToLogin: () => { globalThis.location.href = "https://base55.thinkpowers.site/"; },
+    ...fallback.auth,
+  };
+  // Ensure the Base55 implementations are not overwritten by the fallback SDK.
+  auth.me = () => sdk().auth.me();
+  auth.logout = () => sdk().auth.logout();
+  auth.redirectToLogin = () => { globalThis.location.href = "https://base55.thinkpowers.site/"; };
+
+  return { ...fallback, auth, entities };
 }
