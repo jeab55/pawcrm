@@ -35,14 +35,14 @@
     --font-body: 'Sarabun', sans-serif;
     --font-display: 'Sarabun', sans-serif;
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    --sidebar-background: 152 55% 22%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 152 55% 22%;
-    --sidebar-accent: 152 50% 28%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 152 45% 30%;
-    --sidebar-ring: 152 60% 40%;
+    --sidebar-background: 32 100% 90%;
+    --sidebar-foreground: 28 45% 25%;
+    --sidebar-primary: 28 60% 30%;
+    --sidebar-primary-foreground: 32 100% 96%;
+    --sidebar-accent: 32 90% 82%;
+    --sidebar-accent-foreground: 28 55% 22%;
+    --sidebar-border: 32 70% 80%;
+    --sidebar-ring: 32 90% 60%;
   }
 }
 
